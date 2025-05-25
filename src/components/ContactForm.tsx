@@ -1,11 +1,17 @@
-
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
+import emailjs from "@emailjs/browser";
 
 // Email template configurations
 export const emailTemplates = {
@@ -29,7 +35,7 @@ export const emailTemplates = {
       The LVLUP Credit Solutions Team
       📞 Contact us: (555) 123-4567
       🌐 Visit: lvlupcreditsolutions.com
-    `
+    `,
   },
   owner: {
     subject: "New Lead: {{clientName}} - Credit Consultation Request",
@@ -48,8 +54,8 @@ export const emailTemplates = {
       Language: {{language}}
 
       Follow up within 2 hours for best conversion rates.
-    `
-  }
+    `,
+  },
 };
 
 export function ContactForm() {
@@ -57,10 +63,10 @@ export function ContactForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,24 +74,49 @@ export function ContactForm() {
     setIsLoading(true);
 
     try {
-      // Here you would integrate with your email service
-      // For now, we'll simulate the email sending process
-      console.log('Form submitted:', formData);
-      console.log('Language:', currentLanguage.code);
-      console.log('Client Email Template:', emailTemplates.client);
-      console.log('Owner Email Template:', emailTemplates.owner);
+      // 🔹 Send email to site owner
+      await emailjs.send(
+        "service_108emkr", // Your EmailJS service ID
+        "template_64poy6k", // Template ID for notifying the site owner
+        {
+          user_name: formData.name,
+          user_email: formData.email,
+          user_phone: formData.phone,
+          message: formData.message,
+          to_name: "LVLUP Credit Solutions",
+        },
+        "jrbPqazE6HVfDFwLM" // Your public API key
+      );
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 🔹 Send confirmation email to client/user
+      await emailjs.send(
+        "service_108emkr",
+        "template_o51sy1s", // Template ID for sending to the client
+        {
+          user_name: formData.name,
+          user_email: formData.email,
+          message: `Hi ${formData.name}, thanks for reaching out! We'll get back to you soon.`,
+          reply_to: "support@yourdomain.com", // Optional
+        },
+        "jrbPqazE6HVfDFwLM"
+      );
 
+      // Logging (optional)
+      console.log("Form submitted:", formData);
+      console.log("Language:", currentLanguage.code);
+      console.log("Email templates:", emailTemplates);
+
+      // Toast success
       toast({
         title: "Request Submitted Successfully!",
-        description: "We'll contact you within 24 hours with your free credit analysis.",
+        description: "Cheecck your email for more info",
       });
 
       // Reset form
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
+      console.error("Email sending error:", error);
+
       toast({
         title: "Submission Error",
         description: "Please try again or call us directly at (555) 123-4567",
@@ -96,10 +127,13 @@ export function ContactForm() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
+  // zUW-6d1uxN13WaJyI_e2h
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -109,10 +143,10 @@ export function ContactForm() {
         <Card className="shadow-2xl border-0 animate-scale-in">
           <CardHeader className="text-center pb-8">
             <CardTitle className="text-3xl font-bold text-gray-900 mb-4">
-              {t('contact.title')}
+              {t("contact.title")}
             </CardTitle>
             <CardDescription className="text-lg text-gray-600">
-              {t('contact.subtitle')}
+              {t("contact.subtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -121,7 +155,7 @@ export function ContactForm() {
                 <div>
                   <Input
                     name="name"
-                    placeholder={t('contact.name')}
+                    placeholder={t("contact.name")}
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -132,7 +166,7 @@ export function ContactForm() {
                   <Input
                     name="email"
                     type="email"
-                    placeholder={t('contact.email')}
+                    placeholder={t("contact.email")}
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -140,36 +174,36 @@ export function ContactForm() {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Input
                   name="phone"
                   type="tel"
-                  placeholder={t('contact.phone')}
+                  placeholder={t("contact.phone")}
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
                   className="h-12 text-lg"
                 />
               </div>
-              
+
               <div>
                 <Textarea
                   name="message"
-                  placeholder={t('contact.message')}
+                  placeholder={t("contact.message")}
                   value={formData.message}
                   onChange={handleInputChange}
                   required
                   className="min-h-32 text-lg resize-none"
                 />
               </div>
-              
+
               <Button
                 type="submit"
                 disabled={isLoading}
                 className="w-full h-14 text-lg font-semibold bg-primary-500 hover:bg-primary-600 text-white"
               >
-                {isLoading ? 'Submitting...' : t('contact.submit')}
+                {isLoading ? "Submitting..." : t("contact.submit")}
               </Button>
             </form>
           </CardContent>

@@ -72,44 +72,38 @@ export function ContactForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
+    console.log(".....", formData);
     try {
       // 🔹 Send email to site owner
       await emailjs.send(
-        "service_108emkr", // Your EmailJS service ID
+        "service_108emkr",
         "template_64poy6k", // Template ID for notifying the site owner
         {
-          user_name: formData.name,
-          user_email: formData.email,
-          user_phone: formData.phone,
+          to_name: formData.name,
+          to_email: formData.email,
+          to_phone: formData.phone,
           message: formData.message,
-          to_name: "LVLUP Credit Solutions",
         },
         "jrbPqazE6HVfDFwLM" // Your public API key
       );
 
-      // 🔹 Send confirmation email to client/user
+      // 🔹 Send confirmation email to client
       await emailjs.send(
         "service_108emkr",
         "template_o51sy1s", // Template ID for sending to the client
         {
-          user_name: formData.name,
-          user_email: formData.email,
-          message: `Hi ${formData.name}, thanks for reaching out! We'll get back to you soon.`,
-          reply_to: "support@yourdomain.com", // Optional
+          to_name: formData.name,
+          to_email: formData.email,
+          to_phone: formData.phone,
+          message: formData.message,
         },
         "jrbPqazE6HVfDFwLM"
       );
 
-      // Logging (optional)
-      console.log("Form submitted:", formData);
-      console.log("Language:", currentLanguage.code);
-      console.log("Email templates:", emailTemplates);
-
       // Toast success
       toast({
         title: "Request Submitted Successfully!",
-        description: "Cheecck your email for more info",
+        description: "Check your email for more info",
       });
 
       // Reset form
